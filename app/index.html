@@ -118,7 +118,14 @@ const createGraphicPositionsInWheel = (longitudeAscendant) => {
     if (angle < 0.0) angle += 360.0;
     if (angle >= 360.0) angle -= 360.0;
     const point = createPoint(angle, CelPointGlyphRadius);
-    return {name: body.name, glyph: body.glyph, lon:lon, mundane_pos: angle, x: point.x, y: point.y};
+    return {
+      name: body.name, 
+      glyph: body.glyph, 
+      lon:lon, 
+      mundane_pos: angle, 
+      plot_pos: angle, 
+      x: point.x, 
+      y: point.y};
   });
 }
 
@@ -189,6 +196,91 @@ const drawSignGlyphs = (longAscendant) => {
   }
 }
 
+const createSortedListForWheel = (graphicPositions) => {
+  minDistance = 6.0; // Distância mínima entre os planetas, em graus
+  lista = graphicPositions.sort((a, b) => a.mundane_pos - b.mundane_pos); // Ordena por posição
+
+  lastPos = null;
+  for (let i = 0; i < lista.length; i++) {
+    let pos = lista[i];
+    if (lastPos != null)
+    {
+      let actDistance = pos.mundane_pos - lastPos.plot_pos;
+      if (actDistance < minDistance)
+        {
+            pos.plot_pos += minDistance - actDistance;
+        }
+    }
+    lastPos = pos;
+  }
+
+  /* TODO: Se o último planeta tiver sido deslocado, pode ser necessário verificar novamente o primeiro planeta para garantir que a distância mínima seja mantida entre eles. Isso pode ser feito em um loop até que nenhuma posição precise ser ajustada.
+    // substitua graphPositions para lista, e faça a ordenação e ajustes nela. Depois, no final, normalize as posições para 0-360 graus.
+  //  Check for circular overlap between last and first item
+  if (graphPositions.Count > 1)
+  {
+      var firstPos = graphPositions[0];
+      var lastPosItem = graphPositions[^1];
+
+      // Calculate circular distance from last to first (wrapping around 360)
+      double circularDistance = (firstPos.PlotPos + 360.0 - lastPosItem.PlotPos);
+      if (circularDistance >= 360.0) circularDistance -= 360.0;
+
+      if (circularDistance < minDistance)
+      {
+          // There's overlap - need to adjust. Do a backward pass to redistribute spacing.
+          double deficit = minDistance - circularDistance;
+
+          // Adjust positions backward, starting from the last item
+          for (int i = graphPositions.Count - 1; i >= 0; i--)
+          {
+              graphPositions[i].PlotPos -= deficit;
+
+              // Ensure we maintain minDistance with the previous item (or wrap to last)
+              if (i > 0)
+              {
+                  double distToPrevious = graphPositions[i].PlotPos - graphPositions[i - 1].PlotPos;
+                  if (distToPrevious < minDistance && deficit < 20.0)
+                  {
+                      // Need to push previous items back further
+
+                    deficit += (minDistance - distToPrevious);
+                  }
+                  else
+                  {
+                      // We have enough space, can stop adjusting
+                      break;
+                  }
+              }
+          }
+      }
+  }
+
+  // Normalize all positions to 0-360 range
+  foreach (var pos in graphPositions)
+  {
+      while (pos.PlotPos >= 360.0) pos.PlotPos -= 360.0;
+      while (pos.PlotPos < 0.0) pos.PlotPos += 360.0;
+  }
+  */
+
+  return lista;
+}
+
+const createCelPointConnectLines = (graphicPositions) => {
+    for (let i = 0; i < graphicPositions.length; i++)
+    {
+      pos = graphicPositions[i];
+      const point1 = createPoint(pos.plot_pos, OuterConnectionRadius);
+      const point2 = createPoint(pos.mundane_pos, OuterAspectRadius);
+
+      ctx.beginPath();
+      ctx.moveTo(point1.x, point1.y);
+      ctx.lineTo(point2.x, point2.y);
+      ctx.stroke();
+    }
+}
+
 const drawPlanetsGlyphs = (graphicPositions) => {
     let hypothenusa = CelPointGlyphRadius;
     let fontSize = 18;
@@ -197,7 +289,7 @@ const drawPlanetsGlyphs = (graphicPositions) => {
     for (let i = 0; i <= 9; i++)
     {
         pos = graphicPositions[i];
-        const point1 = createPoint(pos.mundane_pos, hypothenusa);
+        const point1 = createPoint(pos.plot_pos, hypothenusa);
         ctx.beginPath();
         ctx.fillText(pos.glyph, point1.x - fontSize / 3, point1.y + fontSize / 2);
         ctx.stroke();
@@ -268,9 +360,11 @@ drawSignGlyphs(CUSPS[0])
 
 drawCuspLines(CUSPS, CUSPS[0])
 
-listGraphicPositions = createGraphicPositionsInWheel(CUSPS[0]);
+listGraphicPositions = createGraphicPositionsInWheel(CUSPS[0])
+listGraphicPositions = createSortedListForWheel(listGraphicPositions)
+createCelPointConnectLines(listGraphicPositions)
 
-listGraphicPositions.sort((a, b) => a.mundane_pos - b.mundane_pos); // Ordena por posição
+
 
 listGraphicPositions.forEach(pos => {
   console.log(pos)
