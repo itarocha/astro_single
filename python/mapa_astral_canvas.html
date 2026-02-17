@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Mapa Astral - Canvas HTML5</title>
+<style>
+  body { background:#f4f4f4; font-family: Arial, sans-serif; }
+  canvas { background:#fff; display:block; margin:20px auto; }
+</style>
+</head>
+<body>
+
+<canvas id="mapa" width="900" height="900"></canvas>
+
+<script>
+// ===============================
+// CONFIGURAÇÃO BÁSICA
+// ===============================
+const canvas = document.getElementById("mapa");
+const ctx = canvas.getContext("2d");
+
+const cx = canvas.width / 2;
+const cy = canvas.height / 2;
+const R  = 380;
+
+// ===============================
+// FUNÇÕES MATEMÁTICAS
+// ===============================
+function degToRad(deg) {
+  return deg * Math.PI / 180;
+}
+
+function astroAngle(deg) {
+  return degToRad(deg - 90);
+}
+
+function polarToXY(cx, cy, r, deg) {
+  const a = astroAngle(deg);
+  return {
+    x: cx + r * Math.cos(a),
+    y: cy + r * Math.sin(a)
+  };
+}
+
+function angleDiff(a, b) {
+  let d = Math.abs(a - b) % 360;
+  return d > 180 ? 360 - d : d;
+}
+
+// ===============================
+// DADOS ASTRAIS (EXEMPLO REAL)
+// ===============================
+const CUSPS = [
+  82.7015,111.1341,141.3461,173.6226,
+  205.7392,235.3617,262.7015,291.1341,
+  321.3462,353.6226,25.7392,55.3617
+];
+
+const BODIES = [
+  {name:"Sol", lon:97.6626},
+  {name:"Lua", lon:307.4590},
+  {name:"Mercúrio", lon:120.9334},
+  {name:"Vênus", lon:80.1461},
+  {name:"Marte", lon:120.4182},
+  {name:"Júpiter", lon:272.8765},
+  {name:"Saturno", lon:73.6547},
+  {name:"Urano", lon:194.2189},
+  {name:"Netuno", lon:243.0043},
+  {name:"Plutão", lon:179.4214}
+];
+
+// ===============================
+// DESENHO BASE
+// ===============================
+function drawCircle(r) {
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI*2);
+  ctx.stroke();
+}
+
+// ===============================
+// SIGNOS
+// ===============================
+function drawZodiac() {
+  for (let i=0;i<12;i++) {
+    const start = degToRad(i*30 - 90);
+    const end   = degToRad((i+1)*30 - 90);
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, start, end);
+    ctx.stroke();
+  }
+}
+
+// ===============================
+// CASAS
+// ===============================
+function drawHouses() {
+  CUSPS.forEach(deg => {
+    const p = polarToXY(cx, cy, R, deg);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+  });
+}
+
+// ===============================
+// PLANETAS
+// ===============================
+function drawBodies() {
+  BODIES.forEach(b => {
+    const p = polarToXY(cx, cy, R-40, b.lon);
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 6, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillText(b.name, p.x+8, p.y+4);
+  });
+}
+
+// ===============================
+// ASPECTOS
+// ===============================
+function getAspect(a,b) {
+  const d = angleDiff(a,b);
+  if (d<8) return "conj";
+  if (Math.abs(d-60)<6) return "sext";
+  if (Math.abs(d-90)<6) return "quad";
+  if (Math.abs(d-120)<6) return "trig";
+  if (Math.abs(d-180)<8) return "opos";
+}
+
+function drawAspects() {
+  for (let i=0;i<BODIES.length;i++) {
+    for (let j=i+1;j<BODIES.length;j++) {
+      const asp = getAspect(BODIES[i].lon, BODIES[j].lon);
+      if (!asp) continue;
+      const p1 = polarToXY(cx, cy, R-40, BODIES[i].lon);
+      const p2 = polarToXY(cx, cy, R-40, BODIES[j].lon);
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.stroke();
+    }
+  }
+}
+
+// ===============================
+// RENDER FINAL
+// ===============================
+ctx.font = "12px Arial";
+drawCircle(R);
+drawCircle(R-40);
+drawZodiac();
+drawHouses();
+drawAspects();
+drawBodies();
+</script>
+
+</body>
+</html>

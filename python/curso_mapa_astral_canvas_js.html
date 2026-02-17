@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>curso_mapa_astral_canvas_js.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="curso-completo-de-javascript--canvas-html5">Curso Completo de JavaScript + Canvas HTML5</h1>
+<h2 id="desenho-de-mapa-profissional--vers%C3%A3o-did%C3%A1tica-e-com-exemplos">Desenho de Mapa Profissional — Versão didática e com exemplos</h2>
+<p><strong>Autor:</strong> Itamar Rocha Chaves Junior</p>
+<p>Este documento é um esboço ampliado e reestruturado do curso — objetivo: guiar você, passo a passo, na construção de um desenhador de mapa astral profissional usando HTML5 Canvas e JavaScript moderno (ES6+). Inclui explicações conceituais, trechos de código práticos, exemplos e exercícios para fixação.</p>
+<p>Sumário</p>
+<ul>
+<li>Objetivos e pré-requisitos</li>
+<li>Estrutura do projeto</li>
+<li>Fundamentos do Canvas</li>
+<li>Matemática básica (graus/radianos e coordenadas)</li>
+<li>Zodíaco e desenho de setores</li>
+<li>Casas astrológicas (cúspides)</li>
+<li>Planetas e pontos: modelagem e desenho</li>
+<li>Aspectos: identificação e visualização</li>
+<li>Camadas e ordem de desenho</li>
+<li>Boas práticas, performance e exportação</li>
+<li>Exercícios e próximos passos</li>
+</ul>
+<p><strong>Público-alvo:</strong> desenvolvedores com conhecimento básico de JavaScript que queiram aprender programação gráfica aplicada a mapas astrais.</p>
+<p>Pré-requisitos</p>
+<ul>
+<li>HTML e CSS básicos</li>
+<li>JavaScript (variáveis, funções, arrays, objetos, loops)</li>
+<li>Noções mínimas de trigonometria são úteis, mas explicamos o necessário</li>
+</ul>
+<p>Estrutura proposta do projeto</p>
+<pre class="hljs"><code><div>index.html        # página que contém o &lt;canvas&gt;
+chart.js          # coordenação do desenho (fluxo principal)
+math.js           # utilitários trigonométricos e conversões
+zodiac.js         # desenho dos signos e legendas
+houses.js         # manejo de cúspides e desenho das casas
+bodies.js         # modelagem e desenho de planetas/pontos
+aspects.js        # cálculo e desenho de aspectos
+data.js           # exemplo de dados (posições, cúspides)
+</div></code></pre>
+<h2 id="m%C3%B3dulo-1--fundamentos-do-canvas-html5">MÓDULO 1 — FUNDAMENTOS DO CANVAS HTML5</h2>
+<h3 id="11-o-canvas-como-plano-cartesiano">1.1 O Canvas como plano cartesiano</h3>
+<p>O <code>&lt;canvas&gt;</code> é uma superfície bitmap. Tudo é desenhado via API 2D.</p>
+<ul>
+<li>Origem (0,0) no canto superior esquerdo</li>
+<li>Eixo X cresce para a direita; eixo Y cresce para baixo</li>
+</ul>
+<p>Exemplo mínimo:</p>
+<pre class="hljs"><code><div><span class="hljs-tag">&lt;<span class="hljs-name">canvas</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"mapa"</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"800"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"800"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">canvas</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"chart.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+</div></code></pre>
+<pre class="hljs"><code><div><span class="hljs-keyword">const</span> canvas = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'mapa'</span>);
+<span class="hljs-keyword">const</span> ctx = canvas.getContext(<span class="hljs-string">'2d'</span>);
+<span class="hljs-keyword">const</span> cx = canvas.width / <span class="hljs-number">2</span>;
+<span class="hljs-keyword">const</span> cy = canvas.height / <span class="hljs-number">2</span>;
+<span class="hljs-keyword">const</span> R = <span class="hljs-built_in">Math</span>.min(cx, cy) - <span class="hljs-number">20</span>; <span class="hljs-comment">// raio útil</span>
+</div></code></pre>
+<h3 id="12-desenhando-formas-b%C3%A1sicas">1.2 Desenhando formas básicas</h3>
+<p>As primitivas principais: <code>arc</code>, <code>moveTo</code>, <code>lineTo</code>, <code>fillText</code>.</p>
+<p>Exemplo: desenhando o círculo base do mapa</p>
+<pre class="hljs"><code><div>ctx.lineWidth = <span class="hljs-number">2</span>;
+ctx.strokeStyle = <span class="hljs-string">'#222'</span>;
+ctx.beginPath();
+ctx.arc(cx, cy, R, <span class="hljs-number">0</span>, <span class="hljs-built_in">Math</span>.PI * <span class="hljs-number">2</span>);
+ctx.stroke();
+</div></code></pre>
+<h2 id="m%C3%B3dulo-2--matem%C3%A1tica-do-mapa-astral">MÓDULO 2 — MATEMÁTICA DO MAPA ASTRAL</h2>
+<h3 id="21-graus-e-radianos">2.1 Graus e radianos</h3>
+<p>Canvas usa radianos; astrologia usa graus. Converta sempre.</p>
+<pre class="hljs"><code><div><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">degToRad</span>(<span class="hljs-params">deg</span>) </span>{
+  <span class="hljs-keyword">return</span> deg * <span class="hljs-built_in">Math</span>.PI / <span class="hljs-number">180</span>;
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">radToDeg</span>(<span class="hljs-params">rad</span>) </span>{
+  <span class="hljs-keyword">return</span> rad * <span class="hljs-number">180</span> / <span class="hljs-built_in">Math</span>.PI;
+}
+</div></code></pre>
+<h3 id="22-referencial-astrol%C3%B3gico">2.2 Referencial astrológico</h3>
+<p>No mapa astral convencional, 0° (Aries 0°) aparece no ponto esquerdo-horizontal (ascendente) quando desenhamos com Ascendente à esquerda. Para converter graus astrológicos em ângulo de canvas (radianos), aplicamos um deslocamento de -90° (ou +270°):</p>
+<pre class="hljs"><code><div><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">astroAngle</span>(<span class="hljs-params">deg</span>) </span>{
+  <span class="hljs-keyword">return</span> degToRad(deg - <span class="hljs-number">90</span>);
+}
+</div></code></pre>
+<h3 id="23-convers%C3%A3o-polar-%E2%86%92-cartesiana">2.3 Conversão polar → cartesiana</h3>
+<p>Função central para posicionamento de elementos ao longo do círculo:</p>
+<pre class="hljs"><code><div><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">polarToXY</span>(<span class="hljs-params">cx, cy, r, deg</span>) </span>{
+  <span class="hljs-keyword">const</span> a = astroAngle(deg);
+  <span class="hljs-keyword">return</span> {
+    <span class="hljs-attr">x</span>: cx + r * <span class="hljs-built_in">Math</span>.cos(a),
+    <span class="hljs-attr">y</span>: cy + r * <span class="hljs-built_in">Math</span>.sin(a)
+  };
+}
+</div></code></pre>
+<p>Exemplo de uso:</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">const</span> p = polarToXY(cx, cy, R - <span class="hljs-number">40</span>, <span class="hljs-number">120.5</span>); <span class="hljs-comment">// posição para 120.5°</span>
+ctx.fillRect(p.x - <span class="hljs-number">3</span>, p.y - <span class="hljs-number">3</span>, <span class="hljs-number">6</span>, <span class="hljs-number">6</span>);
+</div></code></pre>
+<h2 id="m%C3%B3dulo-3--zod%C3%ADaco">MÓDULO 3 — ZODÍACO</h2>
+<h3 id="31-conceitos-fundamentais">3.1 Conceitos fundamentais</h3>
+<ul>
+<li>12 signos, cada um com 30°</li>
+<li>Signo i começa em i*30° (0..11)</li>
+</ul>
+<pre class="hljs"><code><div><span class="hljs-keyword">const</span> SIGNS = [<span class="hljs-string">'Áries'</span>,<span class="hljs-string">'Touro'</span>,<span class="hljs-string">'Gêmeos'</span>,<span class="hljs-string">'Câncer'</span>,<span class="hljs-string">'Leão'</span>,<span class="hljs-string">'Virgem'</span>,<span class="hljs-string">'Libra'</span>,<span class="hljs-string">'Escorpião'</span>,<span class="hljs-string">'Sagitário'</span>,<span class="hljs-string">'Capricórnio'</span>,<span class="hljs-string">'Aquário'</span>,<span class="hljs-string">'Peixes'</span>];
+</div></code></pre>
+<h3 id="32-desenhando-os-setores-zodiacais">3.2 Desenhando os setores zodiacais</h3>
+<p>Usamos <code>ctx.arc</code> com ângulos iniciais e finais convertidos via <code>degToRad</code>.</p>
+<pre class="hljs"><code><div>SIGNS.forEach(<span class="hljs-function">(<span class="hljs-params">s, i</span>) =&gt;</span> {
+  <span class="hljs-keyword">const</span> start = degToRad(i * <span class="hljs-number">30</span> - <span class="hljs-number">90</span>);
+  <span class="hljs-keyword">const</span> end = degToRad((i + <span class="hljs-number">1</span>) * <span class="hljs-number">30</span> - <span class="hljs-number">90</span>);
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.arc(cx, cy, R, start, end);
+  ctx.closePath();
+  ctx.strokeStyle = <span class="hljs-string">'#ccc'</span>;
+  ctx.stroke();
+
+  <span class="hljs-comment">// label do signo (centro do setor)</span>
+  <span class="hljs-keyword">const</span> midDeg = i * <span class="hljs-number">30</span> + <span class="hljs-number">15</span>;
+  <span class="hljs-keyword">const</span> labelPos = polarToXY(cx, cy, R - <span class="hljs-number">24</span>, midDeg);
+  ctx.font = <span class="hljs-string">'14px sans-serif'</span>;
+  ctx.fillStyle = <span class="hljs-string">'#000'</span>;
+  ctx.textAlign = <span class="hljs-string">'center'</span>;
+  ctx.fillText(s, labelPos.x, labelPos.y + <span class="hljs-number">4</span>);
+});
+</div></code></pre>
+<p>Exercício: altere <code>R</code> e veja como o texto se reposiciona. Tente mudar <code>textAlign</code> para experimentar alinhamentos.</p>
+<h2 id="m%C3%B3dulo-4--casas-astrol%C3%B3gicas-c%C3%BAspides">MÓDULO 4 — CASAS ASTROLÓGICAS (CÚSPIDES)</h2>
+<h3 id="41-dados-de-c%C3%BAspides">4.1 Dados de cúspides</h3>
+<p>As cúspides são ângulos (em graus) determinando as divisões das casas. Não são uniformes: dependem de latitude, hora e sistema (Placidus, Koch, Equal, etc.). Em produção, obtenha dados de uma ephemeris.</p>
+<p>Exemplo de array de cúspides (dados reais de exemplo):</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">const</span> CUSPS = [<span class="hljs-number">82.70154304778679</span>, <span class="hljs-number">111.1341504020764</span>, <span class="hljs-number">141.3461512349346</span>, <span class="hljs-number">173.6225546549408</span>, <span class="hljs-number">205.73919610408942</span>, <span class="hljs-number">235.36167285257102</span>, <span class="hljs-number">262.7015430477868</span>, <span class="hljs-number">291.1341504020764</span>, <span class="hljs-number">321.3461512349346</span>, <span class="hljs-number">353.62255465494087</span>, <span class="hljs-number">25.73919610408942</span>, <span class="hljs-number">55.361672852571004</span>];
+</div></code></pre>
+<h3 id="42-desenho-das-linhas-das-casas">4.2 Desenho das linhas das casas</h3>
+<p>Trace linhas do centro até o perímetro em cada cúspide:</p>
+<pre class="hljs"><code><div>CUSPS.forEach(<span class="hljs-function">(<span class="hljs-params">deg, i</span>) =&gt;</span> {
+  <span class="hljs-keyword">const</span> p = polarToXY(cx, cy, R, deg);
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(p.x, p.y);
+  ctx.strokeStyle = <span class="hljs-string">'#888'</span>;
+  ctx.stroke();
+
+  <span class="hljs-comment">// rótulo da cúspide perto da borda</span>
+  <span class="hljs-keyword">const</span> label = (i + <span class="hljs-number">1</span>).toString().padStart(<span class="hljs-number">2</span>, <span class="hljs-string">'0'</span>);
+  <span class="hljs-keyword">const</span> labPos = polarToXY(cx, cy, R - <span class="hljs-number">8</span>, deg);
+  ctx.fillStyle = <span class="hljs-string">'#222'</span>;
+  ctx.fillText(label, labPos.x, labPos.y + <span class="hljs-number">4</span>);
+});
+</div></code></pre>
+<p>Exercício: desenhe as casas preenchendo setores entre cúspides com transparência.</p>
+<h2 id="m%C3%B3dulo-5--planetas-e-pontos">MÓDULO 5 — PLANETAS E PONTOS</h2>
+<h3 id="51-modelagem-dos-corpos">5.1 Modelagem dos corpos</h3>
+<p>Estrutura sugerida para um corpo:</p>
+<pre class="hljs"><code><div><span class="hljs-comment">// exemplo simplificado</span>
+<span class="hljs-keyword">const</span> BODIES = [
+  { <span class="hljs-attr">code</span>: <span class="hljs-string">'sol'</span>, <span class="hljs-attr">name</span>: <span class="hljs-string">'Sol'</span>, <span class="hljs-attr">lon</span>: <span class="hljs-number">97.66258</span>, <span class="hljs-attr">sign</span>: <span class="hljs-string">'Câncer'</span> },
+  { <span class="hljs-attr">code</span>: <span class="hljs-string">'lua'</span>, <span class="hljs-attr">name</span>: <span class="hljs-string">'Lua'</span>, <span class="hljs-attr">lon</span>: <span class="hljs-number">307.45898</span>, <span class="hljs-attr">sign</span>: <span class="hljs-string">'Aquário'</span> },
+  <span class="hljs-comment">// ... outros</span>
+];
+</div></code></pre>
+<h3 id="52-desenhando-planetas-no-raio-interior">5.2 Desenhando planetas no raio interior</h3>
+<p>Coloque os planetas num círculo interior (por ex. R - 60) e desenhe um marcador e o nome.</p>
+<pre class="hljs"><code><div>BODIES.forEach(<span class="hljs-function"><span class="hljs-params">b</span> =&gt;</span> {
+  <span class="hljs-keyword">const</span> p = polarToXY(cx, cy, R - <span class="hljs-number">60</span>, b.lon);
+  ctx.beginPath();
+  ctx.fillStyle = <span class="hljs-string">'#000'</span>;
+  ctx.arc(p.x, p.y, <span class="hljs-number">6</span>, <span class="hljs-number">0</span>, <span class="hljs-built_in">Math</span>.PI * <span class="hljs-number">2</span>);
+  ctx.fill();
+
+  ctx.font = <span class="hljs-string">'12px sans-serif'</span>;
+  ctx.textAlign = <span class="hljs-string">'left'</span>;
+  ctx.fillText(b.name, p.x + <span class="hljs-number">8</span>, p.y + <span class="hljs-number">4</span>);
+});
+</div></code></pre>
+<p>Dica: para evitar sobreposição de rótulos, calcule deslocamentos pequenos (y offsets) quando distâncias entre marcadores forem menores que um limiar.</p>
+<h2 id="m%C3%B3dulo-6--aspectos-astrol%C3%B3gicos">MÓDULO 6 — ASPECTOS ASTROLÓGICOS</h2>
+<h3 id="61-diferen%C3%A7a-angular-m%C3%B3dulo-circular">6.1 Diferença angular (módulo circular)</h3>
+<p>Para comparar ângulos, use uma diferença mínima ao redor do círculo:</p>
+<pre class="hljs"><code><div><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">angleDiff</span>(<span class="hljs-params">a, b</span>) </span>{
+  <span class="hljs-keyword">const</span> d = <span class="hljs-built_in">Math</span>.abs((a - b + <span class="hljs-number">360</span>) % <span class="hljs-number">360</span>);
+  <span class="hljs-keyword">return</span> d &gt; <span class="hljs-number">180</span> ? <span class="hljs-number">360</span> - d : d;
+}
+</div></code></pre>
+<h3 id="62-identificando-aspectos-com-orbes">6.2 Identificando aspectos com orbes</h3>
+<p>Defina aspectos e orbes (tolerâncias):</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">const</span> ASPECTS = [
+  { <span class="hljs-attr">name</span>: <span class="hljs-string">'Conjunção'</span>, <span class="hljs-attr">angle</span>: <span class="hljs-number">0</span>, <span class="hljs-attr">orbe</span>: <span class="hljs-number">8</span>, <span class="hljs-attr">color</span>: <span class="hljs-string">'#444'</span> },
+  { <span class="hljs-attr">name</span>: <span class="hljs-string">'Sextil'</span>, <span class="hljs-attr">angle</span>: <span class="hljs-number">60</span>, <span class="hljs-attr">orbe</span>: <span class="hljs-number">6</span>, <span class="hljs-attr">color</span>: <span class="hljs-string">'#2E86AB'</span> },
+  { <span class="hljs-attr">name</span>: <span class="hljs-string">'Quadratura'</span>, <span class="hljs-attr">angle</span>: <span class="hljs-number">90</span>, <span class="hljs-attr">orbe</span>: <span class="hljs-number">6</span>, <span class="hljs-attr">color</span>: <span class="hljs-string">'#C0392B'</span> },
+  { <span class="hljs-attr">name</span>: <span class="hljs-string">'Trígono'</span>, <span class="hljs-attr">angle</span>: <span class="hljs-number">120</span>, <span class="hljs-attr">orbe</span>: <span class="hljs-number">6</span>, <span class="hljs-attr">color</span>: <span class="hljs-string">'#27AE60'</span> },
+  { <span class="hljs-attr">name</span>: <span class="hljs-string">'Oposição'</span>, <span class="hljs-attr">angle</span>: <span class="hljs-number">180</span>, <span class="hljs-attr">orbe</span>: <span class="hljs-number">8</span>, <span class="hljs-attr">color</span>: <span class="hljs-string">'#8E44AD'</span> }
+];
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getAspect</span>(<span class="hljs-params">a, b</span>) </span>{
+  <span class="hljs-keyword">const</span> d = angleDiff(a, b);
+  <span class="hljs-keyword">return</span> ASPECTS.find(<span class="hljs-function"><span class="hljs-params">as</span> =&gt;</span> <span class="hljs-built_in">Math</span>.abs(d - <span class="hljs-keyword">as</span>.angle) &lt;= <span class="hljs-keyword">as</span>.orbe) || <span class="hljs-literal">null</span>;
+}
+</div></code></pre>
+<h3 id="63-desenho-das-linhas-de-aspecto">6.3 Desenho das linhas de aspecto</h3>
+<p>Desenhe linhas entre os pontos dos planetas, colorindo conforme o aspecto.</p>
+<pre class="hljs"><code><div><span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; BODIES.length; i++) {
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> j = i + <span class="hljs-number">1</span>; j &lt; BODIES.length; j++) {
+    <span class="hljs-keyword">const</span> a = BODIES[i].lon, b = BODIES[j].lon;
+    <span class="hljs-keyword">const</span> asp = getAspect(a, b);
+    <span class="hljs-keyword">if</span> (!asp) <span class="hljs-keyword">continue</span>;
+
+    <span class="hljs-keyword">const</span> p1 = polarToXY(cx, cy, R - <span class="hljs-number">60</span>, a);
+    <span class="hljs-keyword">const</span> p2 = polarToXY(cx, cy, R - <span class="hljs-number">60</span>, b);
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.strokeStyle = asp.color;
+    ctx.lineWidth = <span class="hljs-number">1.5</span>;
+    ctx.stroke();
+  }
+}
+</div></code></pre>
+<p>Exercício: desenhe um pequeno rótulo no meio da linha indicando o tipo de aspecto.</p>
+<h2 id="m%C3%B3dulo-7--organiza%C3%A7%C3%A3o-e-camadas">MÓDULO 7 — ORGANIZAÇÃO E CAMADAS</h2>
+<p>Ordem recomendada de desenho (do fundo para a frente):</p>
+<ol>
+<li>Fundo e gradientes</li>
+<li>Setores zodiacais</li>
+<li>Círculo externo e marcações de graus</li>
+<li>Linhas das casas (cúspides)</li>
+<li>Aspectos (linhas entre planetas)</li>
+<li>Planetas / pontos (marcadores)</li>
+<li>Textos, legendas e interatividade (tooltips)</li>
+</ol>
+<p>Manter essa ordem evita sobreposição indesejada e melhora clareza.</p>
+<p>Boas práticas e performance</p>
+<ul>
+<li>Agrupe operações de desenho semelhantes (mesma cor/estilo) para reduzir trocas de estado do contexto.</li>
+<li>Use camadas: desenhe em canvas offscreen para partes estáticas (fundo, zodiac, casas) e redesenhe apenas as camadas dinâmicas (aspectos, planetas) ao interagir.</li>
+<li>Para grandes resoluções, aumente <code>canvas.width/height</code> proporcionalmente ao <code>devicePixelRatio</code> e ajuste <code>ctx.scale</code>.</li>
+</ul>
+<p>Exportação</p>
+<ul>
+<li>Para salvar como PNG: <code>canvas.toDataURL('image/png')</code> e criar link de download.</li>
+<li>Para PDF: renderize o canvas em uma imagem e insira em um PDF via bibliotecas como <code>jsPDF</code>.</li>
+</ul>
+<p>Exemplo simples de download PNG:</p>
+<pre class="hljs"><code><div><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">downloadPNG</span>(<span class="hljs-params">canvas, filename = <span class="hljs-string">'mapa.png'</span></span>) </span>{
+  <span class="hljs-keyword">const</span> url = canvas.toDataURL(<span class="hljs-string">'image/png'</span>);
+  <span class="hljs-keyword">const</span> a = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'a'</span>);
+  a.href = url;
+  a.download = filename;
+  a.click();
+}
+</div></code></pre>
+<p>Exercícios práticos</p>
+<ol>
+<li>Modifique <code>BODIES</code> para adicionar pontos fictícios (ex: Part of Fortune) e desenhe-os com símbolo diferente.</li>
+<li>Adicione hover: ao passar o mouse sobre um planeta, destaque o aspecto e mostre uma tooltip com detalhes.</li>
+<li>Implemente label collision: realoque rótulos próximos para evitar sobreposição.</li>
+</ol>
+<p>Dados de exemplo (bloco usado no esboço original)</p>
+<p>O arquivo original inclui um bloco de saída com posições reais. Você pode transformar esse texto em <code>data.js</code> parseando linhas e extraindo <code>lon</code> e <code>cusps</code>.</p>
+<p>Próximos passos e recursos</p>
+<ul>
+<li>Integrar Swiss Ephemeris (WASM) para cálculos precisos</li>
+<li>Adicionar sistema de casas alternativos (Placidus, Koch, Equal)</li>
+<li>Gerar trânsitos e animações temporais</li>
+</ul>
+<p>Referências</p>
+<ul>
+<li>Documentação Canvas 2D (MDN)</li>
+<li>Swiss Ephemeris</li>
+<li>Artigos sobre visualização de dados circulares (radar charts)</li>
+</ul>
+<hr>
+<p>Se quiser, eu posso:</p>
+<ul>
+<li>Gerar uma implementação completa mínima (HTML + JS) copiável e testável</li>
+<li>Criar <code>data.js</code> com parsing do bloco de exemplo</li>
+<li>Implementar a lógica de tooltip e resolução de rótulos</li>
+</ul>
+<p>Diga qual desses próximos passos prefere que eu implemente primeiro.</p>
+
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Mapa Astral - Canvas HTML5</title>
+<style>
+  body { background:#f4f4f4; font-family: Arial, sans-serif; }
+  canvas { background:#fff; display:block; margin:20px auto; }
+</style>
+</head>
+<body>
+
+<canvas id="mapa" width="640" height="640"></canvas>
+
+<script>
+
+const canvas = document.getElementById("mapa");
+const ctx = canvas.getContext("2d");
+
+const BASE_STROKE_SIZE = 2.0;
+const BASE_CONNECT_LINE_SIZE = 1.0;
+const BASE_ASPECT_LINE_SIZE = 6.0;
+
+const OUTER_CIRCLE_INITIAL = 0.98;
+const CARDINAL_INDICATOR_CIRCLE_INITIAL = 0.93;
+const OUTER_SIGN_CIRCLE_INITIAL = 0.89;
+const OUTER_HOUSE_CIRCLE_INITIAL = 0.79;
+const OUTER_ASPECT_CIRCLE_INITIAL = 0.44;
+const CUSP_TEXT_CIRCLE_INITIAL = 0.76;
+const SIGN_GLYPH_CIRCLE_INITIAL = 0.84;
+const CEL_POINT_TEXT_CIRCLE_INITIAL = 0.64;
+const OUTER_CONNECTION_CIRCLE_INITIAL = 0.48;
+const DEGREES_CIRCLE_INITIAL = 0.775;
+const DEGREES5_CIRCLE_INITIAL = 0.76;
+const CEL_POINT_GLYPH_CIRCLE_INITIAL = 0.54;
+const VSP_CIRCLE_INITIAL = 0.39;
+
+const SIGN_GLYPH_SIZE_INITIAL = 28.0;
+const CEL_POINT_GLYPH_SIZE_INITIAL = 24.0;
+const CARDINAL_FONT_SIZE_INITIAL = 16.0;
+const CEL_POINT_TEXT_EAST_OFFSET_INITIAL = 8.0;
+const CEL_POINT_TEXT_WEST_OFFSET_INITIAL = -20.0;
+const POSITION_TEXT_SIZE_INITIAL = 10.0;
+const VSP_TEXT_SIZE_INITIAL = 15.0;
+const GLYPH_X_OFFSET_INITIAL = 0.0;
+const GLYPH_Y_OFFSET_INITIAL = 0.0;
+
+const GridSize = canvas.width;
+const SizeFactor = 1.0
+const OuterCircle = OUTER_CIRCLE_INITIAL * GridSize
+const OuterRadius = OuterCircle / 2
+
+const OuterSignCircle = OUTER_SIGN_CIRCLE_INITIAL * GridSize;
+const OuterSignRadius = OuterSignCircle / 2;
+
+const OuterHouseCircle = OUTER_HOUSE_CIRCLE_INITIAL * GridSize;
+const OuterHouseRadius = OuterHouseCircle / 2;
+
+const OuterAspectCircle = OUTER_ASPECT_CIRCLE_INITIAL * GridSize;
+const OuterAspectRadius = OuterAspectCircle / 2;
+
+const SignGlyphCircle = SIGN_GLYPH_CIRCLE_INITIAL * GridSize;
+const SignGlyphRadius = SignGlyphCircle / 2;
+
+const CuspTextCircle = CUSP_TEXT_CIRCLE_INITIAL * GridSize;
+const CuspTextRadius = CuspTextCircle / 2;
+
+const CelPointGlyphCircle = CEL_POINT_GLYPH_CIRCLE_INITIAL * GridSize;
+const CelPointGlyphRadius = CelPointGlyphCircle / 2;
+
+const OuterConnectionCircle = OUTER_CONNECTION_CIRCLE_INITIAL * GridSize;
+const OuterConnectionRadius = OuterConnectionCircle / 2;
+
+const DegreesCircle = DEGREES_CIRCLE_INITIAL * GridSize;
+const DegreesRadius = DegreesCircle / 2;
+
+const Degrees5Circle = DEGREES5_CIRCLE_INITIAL * GridSize;
+const Degrees5Radius = Degrees5Circle / 2;
+
+const StrokeSize = BASE_STROKE_SIZE * SizeFactor;
+const StrokeSizeDouble = StrokeSize * 2.0;
+const ConnectLineSize = BASE_CONNECT_LINE_SIZE * SizeFactor;
+const AspectLineSize = BASE_ASPECT_LINE_SIZE * SizeFactor;
+const GlyphXOffset = GLYPH_X_OFFSET_INITIAL * GridSize;
+const GlyphYOffset = GLYPH_Y_OFFSET_INITIAL * GridSize;
+const SignGlyphSize = SIGN_GLYPH_SIZE_INITIAL * (GridSize / 700.0);
+const CelPointGlyphSize = CEL_POINT_GLYPH_SIZE_INITIAL * (GridSize / 700.0);
+const CardinalFontSize = CARDINAL_FONT_SIZE_INITIAL * (GridSize / 700.0);
+const CelPointTextEastOffset = CEL_POINT_TEXT_EAST_OFFSET_INITIAL * SizeFactor;
+const CelPointTextWestOffset = CEL_POINT_TEXT_WEST_OFFSET_INITIAL * SizeFactor;
+const PositionTextSize = POSITION_TEXT_SIZE_INITIAL * (GridSize / 700.0);
+const VspTextSize = VSP_TEXT_SIZE_INITIAL * (GridSize / 700.0);
+
+
+const cx = GridSize / 2;
+const cy = GridSize / 2;
+
+const degToRad = (degrees) => {
+    return Math.PI / 180 * degrees
+}
+
+const createPoint = (angle, hypothenusa) => {  
+  const a = degToRad(angle);
+  const x = cx - Math.sin(a) * hypothenusa;
+  const y = cy - Math.cos(a) * hypothenusa;
+  return {x, y};
+}
+
+const angleDiff = (a, b) => {
+  let d = Math.abs(a - b) % 360;
+  return d > 180 ? 360 - d : d;
+}
+
+const createGraphicPositionsInWheel = (longitudeAscendant) => {
+  return BODIES.map(body => {
+    let lon = body.lon;
+    let angle = body.lon - longitudeAscendant + 90.0;
+    if (angle < 0.0) angle += 360.0;
+    if (angle >= 360.0) angle -= 360.0;
+    const point = createPoint(angle, CelPointGlyphRadius);
+    return {name: body.name, lon:lon, mundane_pos: angle, x: point.x, y: point.y};
+  });
+}
+
+const drawCircle = (r) => {
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI*2);
+  ctx.stroke();
+}
+
+const drawDegreeIndications = (longAscendant, _hypoStart, _hypoDegree, _hypo5Degree) => {
+  const offsetAsc = 30.0 - longAscendant % 30.0;
+  let angle = offsetAsc;
+  for (let i = 0; i < 360; i++)
+  {
+      let actualHypo = (i % 5 == 0) ? _hypo5Degree : _hypoDegree;
+      const point1 = createPoint(angle, actualHypo);
+      const point2 = createPoint(angle, _hypoStart);
+      ctx.beginPath();
+      ctx.moveTo(point1.x, point1.y);
+      ctx.lineTo(point2.x, point2.y);
+      ctx.stroke();
+      angle += 1.0;
+      if (angle >= 360.0) angle -= 360.0;
+  }
+}
+
+const drawSignSeparators = (longAscendant) => {
+  let offsetAsc = 30.0 - longAscendant % 30.0;
+  let hypothenusa1 = OuterHouseRadius;
+  let hypothenusa2 = OuterSignRadius;
+  for (let i = 0; i < 12; i++)
+  {
+      let angle = i * 30 + offsetAsc;
+      if (angle < 0.0) angle += 360.0;
+      if (angle >= 360.0) angle -= 360.0;
+
+      angle += 90.0;
+      const point1 = createPoint(angle, hypothenusa1);
+      const point2 = createPoint(angle, hypothenusa2);
+      ctx.beginPath();
+      ctx.moveTo(point1.x, point1.y);
+      ctx.lineTo(point2.x, point2.y);
+      ctx.stroke();
+  }
+}
+
+const drawSignGlyphs = (longAscendant) => {
+  let offsetAsc = 30.0 - (longAscendant % 30.0);
+  let hypothenusa = SignGlyphRadius;
+  let fontSize = 20;
+  let glyphs = [ "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=" ];
+
+  let indexFirstGlyph = Math.floor((longAscendant / 30.0) + 1);
+
+  ctx.font = "20pt EnigmaAstrologyBLA2";
+  let glyphIndex = indexFirstGlyph;
+  for (let i = 0; i < 12; i++)
+  {
+      if (glyphIndex > 11) glyphIndex = 0;
+      let angle = i * 30 + offsetAsc + 90.0 + 15.0;
+      if (angle < 0.0) angle += 360.0;
+      if (angle >= 360.0) angle -= 360.0;
+      const point1 = createPoint(angle, hypothenusa);
+      ctx.beginPath();
+      ctx.fillText(glyphs[glyphIndex], point1.x - fontSize / 3, point1.y + fontSize / 2);
+      ctx.stroke();
+      glyphIndex++;
+  }
+}
+
+const drawPlanetsGlyphs = (graphicPositions) => {
+    let hypothenusa = CelPointGlyphRadius;
+    let fontSize = 18;
+    let glyphs = [ "a", "b", "c", "d", "f", "g", "h", "i", "j", "k" ];
+
+    ctx.font = "18pt EnigmaAstrologyBLA2";
+    for (let i = 0; i <= 9; i++)
+    {
+        pos = graphicPositions[i];
+        const point1 = createPoint(pos.mundane_pos, hypothenusa);
+        ctx.beginPath();
+        ctx.fillText(glyphs[i], point1.x - fontSize / 3, point1.y + fontSize / 2);
+        ctx.stroke();
+    }
+}
+
+const drawCuspLines = (housePositions, longAscendant) => {
+    for (let i = 0; i < housePositions.length; i++)
+    {
+        let angle = housePositions[i] - longAscendant + 90.0;
+        if (angle < 0.0) angle += 360.0;
+        if (angle >= 360.0) angle -= 360.0;
+
+        let width = i % 3 == 0 ? StrokeSizeDouble : StrokeSize;
+        const point1 = createPoint(angle, OuterAspectRadius);
+        const point2 = createPoint(angle, OuterHouseRadius);
+        ctx.beginPath();
+        ctx.moveTo(point1.x, point1.y);
+        ctx.lineTo(point2.x, point2.y);
+        ctx.stroke();
+      }
+}
+
+// ===============================
+// DADOS 
+// ===============================
+const CUSPS = [
+  82.7015,
+  111.1341,
+  141.3461,
+  173.6226,
+  205.7392,
+  235.3617,
+  262.7015,
+  291.1341,
+  321.3462,
+  353.6226,
+  25.7392,
+  55.3617
+];
+
+// Ecliptic positions of the bodies (in degrees)
+// Mundane pos?
+const BODIES = [
+  {name:"Sol", lon:97.6626},
+  {name:"Lua", lon:307.4590},
+  {name:"Mer", lon:120.9334},
+  {name:"Ven", lon:80.1461},
+  {name:"Mar", lon:120.4182},
+  {name:"Jup", lon:272.8765},
+  {name:"Sat", lon:73.6547},
+  {name:"Ura", lon:194.2189},
+  {name:"Net", lon:243.0043},
+  {name:"Plu", lon:179.4214}
+];
+
+ctx.font = "12px Arial";
+
+//drawCircle(OuterRadius);
+drawCircle(OuterSignRadius);
+drawCircle(OuterHouseRadius);
+drawCircle(OuterAspectRadius);
+
+drawDegreeIndications(CUSPS[0], OuterHouseRadius, DegreesRadius, Degrees5Radius);
+
+drawSignSeparators(CUSPS[0])
+drawSignGlyphs(CUSPS[0])
+
+drawCuspLines(CUSPS, CUSPS[0])
+
+listGraphicPositions = createGraphicPositionsInWheel(CUSPS[0]);
+
+listGraphicPositions.forEach(pos => {
+  console.log(pos)
+});
+
+drawPlanetsGlyphs(listGraphicPositions)
+
+</script>
+
+</body>
+</html>
