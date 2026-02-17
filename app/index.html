@@ -118,7 +118,7 @@ const createGraphicPositionsInWheel = (longitudeAscendant) => {
     if (angle < 0.0) angle += 360.0;
     if (angle >= 360.0) angle -= 360.0;
     const point = createPoint(angle, CelPointGlyphRadius);
-    return {name: body.name, lon:lon, mundane_pos: angle, x: point.x, y: point.y};
+    return {name: body.name, glyph: body.glyph, lon:lon, mundane_pos: angle, x: point.x, y: point.y};
   });
 }
 
@@ -192,7 +192,6 @@ const drawSignGlyphs = (longAscendant) => {
 const drawPlanetsGlyphs = (graphicPositions) => {
     let hypothenusa = CelPointGlyphRadius;
     let fontSize = 18;
-    let glyphs = [ "a", "b", "c", "d", "f", "g", "h", "i", "j", "k" ];
 
     ctx.font = "18pt EnigmaAstrologyBLA2";
     for (let i = 0; i <= 9; i++)
@@ -200,7 +199,7 @@ const drawPlanetsGlyphs = (graphicPositions) => {
         pos = graphicPositions[i];
         const point1 = createPoint(pos.mundane_pos, hypothenusa);
         ctx.beginPath();
-        ctx.fillText(glyphs[i], point1.x - fontSize / 3, point1.y + fontSize / 2);
+        ctx.fillText(pos.glyph, point1.x - fontSize / 3, point1.y + fontSize / 2);
         ctx.stroke();
     }
 }
@@ -243,16 +242,16 @@ const CUSPS = [
 // Ecliptic positions of the bodies (in degrees)
 // Mundane pos?
 const BODIES = [
-  {name:"Sol", lon:97.6626},
-  {name:"Lua", lon:307.4590},
-  {name:"Mer", lon:120.9334},
-  {name:"Ven", lon:80.1461},
-  {name:"Mar", lon:120.4182},
-  {name:"Jup", lon:272.8765},
-  {name:"Sat", lon:73.6547},
-  {name:"Ura", lon:194.2189},
-  {name:"Net", lon:243.0043},
-  {name:"Plu", lon:179.4214}
+  {name:"Sol", glyph:"a", lon:97.6626},
+  {name:"Lua", glyph:"b", lon:307.4590},
+  {name:"Mer", glyph:"c", lon:120.9334},
+  {name:"Ven", glyph:"d", lon:80.1461},
+  {name:"Mar", glyph:"f", lon:120.4182},
+  {name:"Jup", glyph:"g", lon:272.8765},
+  {name:"Sat", glyph:"h", lon:73.6547},
+  {name:"Ura", glyph:"i", lon:194.2189},
+  {name:"Net", glyph:"j", lon:243.0043},
+  {name:"Plu", glyph:"k", lon:179.4214}
 ];
 
 ctx.font = "12px Arial";
@@ -270,6 +269,8 @@ drawSignGlyphs(CUSPS[0])
 drawCuspLines(CUSPS, CUSPS[0])
 
 listGraphicPositions = createGraphicPositionsInWheel(CUSPS[0]);
+
+listGraphicPositions.sort((a, b) => a.mundane_pos - b.mundane_pos); // Ordena por posição
 
 listGraphicPositions.forEach(pos => {
   console.log(pos)
