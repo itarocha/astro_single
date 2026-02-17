@@ -281,6 +281,79 @@ const createCelPointConnectLines = (graphicPositions) => {
     }
 }
 
+const createCelPointTextsForWheel = (graphicPositions) => {
+
+  graphicPositions.forEach((graphPoint, i) => {
+  
+      let angle = graphPoint.plot_pos < 180.0 ? graphPoint.plot_pos - 1.5 : graphPoint.plot_pos + 1.5;
+      //const posDmText = convertDoubleToDmInSignNoGlyph(graphPoint.EclipticPos);
+      const posDmText = graphPoint.lon.toFixed(1) + "°"; // Placeholder for actual DMS conversion
+
+      cuspTextRadius = CuspTextRadius - 35; // Adjust this value as needed to position the text correctly
+      const point1 = graphPoint.plot_pos < 180.0
+          ? createPoint(angle, cuspTextRadius + CelPointTextEastOffset)
+          : createPoint(angle, cuspTextRadius + CelPointTextWestOffset);
+
+      const posText = {
+          text: posDmText,
+          fontFamily: "Arial",
+          fontSize: PositionTextSize,
+          color: "black"
+      };
+
+      const rotateAngle = graphPoint.plot_pos < 180.0 ? graphPoint.plot_pos - 90.0 : graphPoint.plot_pos - 270.0;
+      const swapAngle = 90.0 - rotateAngle;
+      const finalRotateAngle = 270.0 + swapAngle;
+
+      // Apply rotation to posText based on finalRotateAngle
+      // (In HTML5 Canvas, you would use ctx.rotate() before drawing the text)
+
+      // Set position of posText based on point1 and Glyph offsets
+      // (In HTML5 Canvas, you would use ctx.fillText() at the calculated position)
+
+      ctx.save(); // Save the current state
+      ctx.translate(point1.x, point1.y); // Move to the position where text should be drawn
+      ctx.rotate(degToRad(finalRotateAngle)); // Rotate the canvas to the desired angle
+
+      //ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+
+      ctx.font = `${PositionTextSize}px ${posText.fontFamily}`;
+      ctx.fillStyle = posText.color;
+      ctx.fillText(posText.text, -GlyphXOffset, GlyphYOffset); // Draw text
+      ctx.restore(); // Restore the original state   
+
+  })
+
+  /*
+  foreach (var graphPoint in graphicPositions)
+  {
+      angle = graphPoint.PlotPos < 180.0 ? graphPoint.PlotPos - 1.5 : graphPoint.PlotPos + 1.5;
+      string posDmText = _doubleToDmsConversions.ConvertDoubleToDmInSignNoGlyph(graphPoint.EclipticPos);
+      Point point1 = angle < 180.0
+          ? dimPoint.CreatePoint(angle, metrics.CelPointTextRadius + metrics.CelPointTextEastOffset)
+          : dimPoint.CreatePoint(angle, metrics.CelPointTextRadius + metrics.CelPointTextWestOffset);
+      TextBlock posText = new()
+      {
+          Text = posDmText,
+          FontFamily = metrics.PositionTextsFontFamily,
+          FontSize = metrics.PositionTextSize,
+          Foreground = new SolidColorBrush(metrics.CelPointTextColor)
+      };
+      RotateTransform rotateTransform = new();
+      double rotateAngle = graphPoint.PlotPos < 180.0 ? graphPoint.PlotPos - 90.0 : graphPoint.PlotPos - 270.0;
+      double swapAngle = 90.0 - rotateAngle;
+      rotateTransform.Angle = 270.0 + swapAngle;
+      if (rotateTransform.Angle >= 360.0) rotateTransform.Angle -= 360.0;
+
+      posText.RenderTransform = rotateTransform;
+      Canvas.SetLeft(posText, point1.X - metrics.GlyphXOffset);
+      Canvas.SetTop(posText, point1.Y - metrics.GlyphYOffset);
+  }
+  */
+}
+
+
 const drawPlanetsGlyphs = (graphicPositions) => {
     let hypothenusa = CelPointGlyphRadius;
     let fontSize = 18;
@@ -363,7 +436,7 @@ drawCuspLines(CUSPS, CUSPS[0])
 listGraphicPositions = createGraphicPositionsInWheel(CUSPS[0])
 listGraphicPositions = createSortedListForWheel(listGraphicPositions)
 createCelPointConnectLines(listGraphicPositions)
-
+createCelPointTextsForWheel(listGraphicPositions)
 
 
 listGraphicPositions.forEach(pos => {
